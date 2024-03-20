@@ -1,0 +1,97 @@
+version: "3.8"
+services:
+  server1:
+    image: product_image
+    restart: always
+    ports:
+      - "8081:8081"
+    container_name: product_container
+    depends_on:
+      - productdb
+    volumes:
+      - C:\Users\Admin\Downloads\microservices-parent\product-service\src\main\resources\application.properties:/tmp/config/application.properties:ro
+    networks:
+      network-net:
+  productdb:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: product-service
+      MYSQL_USER: safwan
+      MYSQL_PASSWORD: safwan
+      MYSQL_ROOT_PASSWORD: safwan
+    ports:
+      - "3307:3306"
+    networks:
+      network-net:
+
+  server2:
+    image: inventory_image
+    restart: always
+    ports:
+      - "8085:8085"
+    container_name: inventory_container
+    depends_on:
+      - db2
+    environment:
+      SPRING_CONFIG_IMPORT_PRODUCT: "optional:file:/tmp/config/application.yml"
+      SPRING_DATASOURCE_URL_PRODUCT: "jdbc:mysql://mysqlinventorydb:3308/inventory-service"
+      SPRING_DATASOURCE_USERNAME_PRODUCT: "safwan"
+      SPRING_DATASOURCE_PASSWORD_PRODUCT: "safwan"
+    volumes:
+      - C:\Users\Admin\Downloads\microservices-parent\inventory-service\src\main\resources\application.properties:/tmp/config/application.properties:ro
+    networks:
+      network-net:
+  db2:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: inventory-service
+      MYSQL_USER: safwan
+      MYSQL_PASSWORD: safwan
+      MYSQL_ROOT_PASSWORD: safwan
+      MYSQL_DATA: /data/mysql
+    ports:
+      - "3308:3306"
+    networks:
+      network-net:
+  server3:
+    image: cart_image
+    restart: always
+    ports:
+      - "8082:8082"
+    container_name: cart_container
+    depends_on:
+      - db3
+    environment:
+      SPRING_CONFIG_IMPORT_PRODUCT: "optional:file:/tmp/config/application.yml"
+      SPRING_DATASOURCE_URL_PRODUCT: "jdbc:mysql://mysqlcartdb:3309/cart-service"
+      SPRING_DATASOURCE_USERNAME_PRODUCT: "safwan"
+      SPRING_DATASOURCE_PASSWORD_PRODUCT: "safwan"
+    volumes:
+      - C:\Users\Admin\Downloads\microservices-parent\cart-service\src\main\resources\application.properties:/tmp/config/application.properties:ro
+    networks:
+      network-net:
+  db3:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: cart-service
+      MYSQL_USER: safwan
+      MYSQL_PASSWORD: safwan
+      MYSQL_ROOT_PASSWORD: safwan
+      MYSQL_DATA: /data/mysql
+    ports:
+      - "3309:3306"
+    networks:
+      network-net:
+  server4:
+    image: api_gateway_image
+    restart: always
+    ports:
+     - "8888:8888"
+    container_name: api_gateway_container
+    volumes:
+      - C:\Users\Admin\Downloads\microservices-parent\api-gateway\src\main\resources\application.yml:/tmp/config/application.yml:ro
+    networks:
+      network-net:
+networks:
+  network-net:
